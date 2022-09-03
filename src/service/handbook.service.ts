@@ -17,6 +17,7 @@ export class HandbookService {
         this.generatorIndex();
         this.generatorCommentColumn();
         this.generatorFunction();
+        this.generatorStartFuction();
         return this.sql;
     }
 
@@ -190,4 +191,17 @@ export class HandbookService {
         `;
     }
 
+    private generatorStartFuction(){
+        this.sql += `
+        /** Start Fucntion */
+        select * from handbook.${this.name}_save(_name := 'test',_description := 'test', _active := false );
+        select * from handbook.${this.name}_get();
+        select * from handbook.${this.name}_get_id(_id := 1);
+        select * from handbook.${this.name}_check_id(_id := 1);
+        select * from handbook.${this.name}_check_name(_name := 'test');
+        select * from handbook.${this.name}_delete_id(_id := 1);
+        select * from handbook.${this.name}_update_id(_id := 1,_name := 'test',_description := 'test', _active := false ); 
+        /** Start Fucntion */
+        `
+    }
 }
