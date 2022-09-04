@@ -29,7 +29,8 @@ CREATE TABLE handbook."${this.name}" (
     id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
     "name" varchar NOT NULL,
     description text NULL,
-    active boolean
+    active boolean,
+    CONSTRAINT ${this.name}_pk PRIMARY KEY (id)
 );
 /** Create table */
 `
