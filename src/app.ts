@@ -1,9 +1,8 @@
 import * as Koa from 'koa';
 import * as HttpStatus from 'http-status-codes';
 import {fileRouter} from "./controllers/file.controllers";
-import { HandbookService } from './service/handbook.service';
 import { handbookRouter } from './controllers/handbook.controllers';
-
+import { manyToManyRouter } from './controllers/manyToMany.contollers';
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -30,7 +29,7 @@ app.use(multipartBodyParser({
 
 app.use(fileRouter.routes());
 app.use(handbookRouter.routes());
-
+app.use(manyToManyRouter.routes());
 // Application error logging.
 app.on('error', console.error);
 
