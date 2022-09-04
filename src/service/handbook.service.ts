@@ -32,7 +32,7 @@ CREATE TABLE handbook."${this.name}" (
     active boolean
 );
 /** Create table */
-        `
+`
     }
 
     private generatorIndex(){
@@ -48,7 +48,7 @@ COMMENT ON COLUMN handbook.${this.name}."name" IS '${this.comment_column[0]}';
 COMMENT ON COLUMN handbook.${this.name}.description IS '${this.comment_column[1]}';
 COMMENT ON COLUMN handbook.${this.name}.active IS '${this.comment_column[2]}';
 /** Column comments*/
-        `
+`
     }
     private generatorFunction(){
         this.generatorFunctionGet();
@@ -88,12 +88,12 @@ AS $function$
     END;
 $function$;
 /** Fucntion GET  */
-        `
+`;
     }
 
     private generatorFunctionCheckId(){
         this.sql += `
-        /** Fucntion CHECK  */
+/** Fucntion CHECK  */
 CREATE OR REPLACE FUNCTION handbook.${this.name}_check_id(_id int)
 RETURNS boolean
 LANGUAGE plpgsql
@@ -102,7 +102,7 @@ AS $function$
         return EXISTS (select * from handbook.${this.name} where "id" = _id);
     END;
 $function$;
-        `;
+`;
     }
 
     private generatorFunctionCheckName(){
@@ -115,26 +115,26 @@ AS $function$
         return EXISTS (select * from handbook.${this.name} where "name" = _name);
     END;
 $function$;
-        `;
+`;
     }
 
     private generatorFunctionCheckUpdate(){
         this.sql += `
-CREATE OR REPLACE FUNCTION handbook.${this.name}_check_name(_name varchar)
+CREATE OR REPLACE FUNCTION handbook.${this.name}_check_update(_id int, _name varchar)
 RETURNS boolean
 LANGUAGE plpgsql
 AS $function$
     BEGIN
-        return EXISTS (select * from handbook.${this.name} where "name" = _name);
+        return EXISTS (select * from handbook.${this.name} where id != _id and "name" = _name);
     END;
 $function$;
 /** Fucntion CHECK  */
-        `;
+`;
     }
 
     private generatorFunctionSave(){
         this.sql += `
-        /** Fucntion SAVE  */
+/** Fucntion SAVE  */
 CREATE OR REPLACE FUNCTION handbook.${this.name}_save(
     _name varchar,
     _description text DEFAULT NULL::character varying,
@@ -156,7 +156,7 @@ END IF;
     END;
 $function$;
 /** Fucntion SAVE  */
-        `;
+`;
     }
     private generatorFunctionUpdate(){
         this.sql += `
@@ -172,7 +172,7 @@ LANGUAGE plpgsql
 AS $function$
 BEGIN
     IF (select * from handbook.${this.name}_check_id(_id)) then
-        IF (select * from handbook.${this.name}_check_update(_name)) <> true then
+        IF (select * from handbook.${this.name}_check_update(_id, _name)) <> true then
             UPDATE handbook.${this.name} 
             SET 
                 name = _name, 
@@ -187,7 +187,7 @@ BEGIN
     END IF;
 END;
 $function$;
-        `;
+`;
     }
 
     private generatorFunctionDelete(){
@@ -203,7 +203,7 @@ BEGIN
     END IF;
 END;
 $function$;
-        `;
+`;
     }
 
     private generatorStartFuction(){
@@ -217,6 +217,6 @@ select * from handbook.${this.name}_check_name(_name := 'test');
 select * from handbook.${this.name}_delete_id(_id := 1);
 select * from handbook.${this.name}_update_id(_id := 1,_name := 'test',_description := 'test', _active := false ); 
 /** Start Fucntion */
-        `
+`;
     }
 }

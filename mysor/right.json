@@ -1,0 +1,6 @@
+{
+    "name": "right",
+    "id_errors_name": 9,
+    "id_errors_404": 10,
+    "comment_column": ["Имя право", "Описание право", "Активность право"]
+}

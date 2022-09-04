@@ -1,0 +1,6 @@
+{
+    "name": "roles",
+    "id_errors_name": 11,
+    "id_errors_404": 12,
+    "comment_column": ["Имя роли", "Описание роли", "Активность роли"]
+}
