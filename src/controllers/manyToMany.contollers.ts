@@ -8,12 +8,16 @@ router.post("/many_to_many/generator", (ctx: Koa.Context) => {
     const name_schema = ctx.request.body.name_schema;
     const name_column = ctx.request.body.name_column;
     const errors_404 = ctx.request.body.errors_404;
-
+    const sql_get = ctx.request.body.sql_get;
+    const returt_get = ctx.request.body.returt_get;
     const manyToManySerivce = new ManyToManySerivce(
         name_table,
         name_schema,
         name_column,
-        errors_404
+        errors_404,
+        sql_get,
+        returt_get,
+
     );
     ctx.res.setHeader('Content-disposition', 'attachment; filename=' + `${name_table}.sql`);
     ctx.res.setHeader('Content-Type', 'application/sql');

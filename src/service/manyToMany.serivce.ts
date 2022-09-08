@@ -3,23 +3,30 @@ export class ManyToManySerivce {
     private readonly name_schema: string;
     private readonly name_column: string[]; // 2 значения 
     private readonly errors_404: string[]; // 3  значения
+    private readonly sql_get: string;
+    private readonly returt_get: string;
     private sql: string = "";
 
     constructor(
         name_table: string,
         name_schema: string,
         name_column: string[],
-        errors_404: string[]
+        errors_404: string[],
+        sql_get: string,
+        returt_get: string,
     ){
         this.name_table = name_table;
         this.name_schema = name_schema;
         this.name_column = name_column;
         this.errors_404 = errors_404;
+        this.sql_get = sql_get
+        this.returt_get = returt_get;
     }
 
     public generatorSql() {
         this.generatorCreateTable();
         this.generatorSave();
+        this.generatorGet();
         return this.sql;
     }
 
@@ -67,6 +74,29 @@ declare
     end;
 $function$;
 `;
+    }
+
+    private generatorGet(){
+        this.sql +=`
+CREATE OR REPLACE FUNCTION ${this.name_schema}.${this.name_table}_get(
+    _limit int DEFAULT NULL::integer,
+    _offset int DEFAULT NULL::integer,
+    _where varchar DEFAULT NULL::integer,
+    _order_by varchar DEFAULT NULL::integer
+)
+RETURNS ${this.returt_get}
+LANGUAGE plpgsql
+AS $function$
+    BEGIN   
+    return query EXECUTE (
+        select * from tec.table_get(
+           '${this.sql_get}',
+            _limit, _offset, _order_by, _where
+            )
+        );
+    end;
+$function$;
+        `
     }
 }
 
