@@ -5,6 +5,7 @@ export class ManyToManySerivce {
     private readonly errors_404: string[]; // 3  значения
     private readonly sql_get: string;
     private readonly returt_get: string;
+    private readonly column_get_id: string;
     private sql: string = "";
 
     constructor(
@@ -14,6 +15,7 @@ export class ManyToManySerivce {
         errors_404: string[],
         sql_get: string,
         returt_get: string,
+        column_get_id: string
     ){
         this.name_table = name_table;
         this.name_schema = name_schema;
@@ -21,17 +23,22 @@ export class ManyToManySerivce {
         this.errors_404 = errors_404;
         this.sql_get = sql_get
         this.returt_get = returt_get;
+        this.column_get_id = column_get_id;
     }
 
     public generatorSql() {
         this.generatorCreateTable();
         this.generatorSave();
         this.generatorGet();
+        this.generatorGetId();
+        this.generatorFunctionCheckId();
+        this.generatorStartFunction();
         return this.sql;
     }
 
     private generatorCreateTable() {
         this.sql += `
+/** Create table */        
 CREATE TABLE ${this.name_schema}.${this.name_table} (
     id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
     id_${this.name_column[0]} int4 NOT NULL,
@@ -39,10 +46,12 @@ CREATE TABLE ${this.name_schema}.${this.name_table} (
     CONSTRAINT ${this.name_table}_pk PRIMARY KEY (id),
     CONSTRAINT ${this.name_table}_fk FOREIGN KEY (id_${this.name_column[0]}) REFERENCES ${this.name_schema}.${this.name_column[0]}(id),
     CONSTRAINT ${this.name_table}_fk_1 FOREIGN KEY (id_${this.name_column[1]}) REFERENCES ${this.name_schema}.${this.name_column[1]}(id)
-);`;
+);
+/** Create table */`;
     }
     private generatorSave(){
         this.sql +=`
+/** Fucntion SAVE  */
 CREATE OR REPLACE FUNCTION ${this.name_schema}.${this.name_table}_save(
     _id_${this.name_column[0]} int,
     _id_${this.name_column[1]} int,
@@ -73,11 +82,14 @@ declare
         end if;
     end;
 $function$;
+/** Fucntion SAVE  */
 `;
     }
 
     private generatorGet(){
         this.sql +=`
+
+/** Fucntion GET  */
 CREATE OR REPLACE FUNCTION ${this.name_schema}.${this.name_table}_get(
     _limit int DEFAULT NULL::integer,
     _offset int DEFAULT NULL::integer,
@@ -97,6 +109,43 @@ AS $function$
     end;
 $function$;
         `
+    }
+    private generatorGetId(){
+        this.sql +=`
+CREATE OR REPLACE FUNCTION ${this.name_schema}.${this.name_table}_get_id(
+    _id int
+)
+RETURNS ${this.returt_get}
+LANGUAGE plpgsql
+AS $function$
+    BEGIN   
+        return query ${this.sql_get} where ${this.column_get_id}.id = _id;
+    end;
+$function$;
+/** Fucntion GET  */
+        `
+    }
+    private generatorFunctionCheckId(){
+        this.sql += `
+/** Fucntion CHECK  */
+CREATE OR REPLACE FUNCTION ${this.name_schema}.${this.name_table}_check_id(_id int)
+RETURNS boolean
+LANGUAGE plpgsql
+AS $function$
+    BEGIN
+        return EXISTS (select * from ${this.name_schema}.${this.name_table} where "id" = _id);
+    END;
+$function$;
+/** Fucntion CHECK  */
+`;
+    }
+    private generatorStartFunction(){
+        this.sql += `
+-- select * from ${this.name_schema}.${this.name_table}_save(1,1);
+-- select * from ${this.name_schema}.${this.name_table}_check_id(1);
+-- select * from ${this.name_schema}.${this.name_table}_get();
+-- select * from ${this.name_schema}.${this.name_table}_get_id(1);
+`;
     }
 }
 
