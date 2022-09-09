@@ -2,7 +2,7 @@
     "name_table": "right_roles",
     "name_schema": "tec",
     "name_column": ["right", "roles"],
-    "errors_404": [5,1, 10 ,12],
+    "errors_404": [14,13, 10 ,12],
     "sql_get": "select rr.id, rr.id_right, rr.id_roles, r.\"name\" as right_name, r.description as right_description, r.active as right_active, r2.\"name\" as roles_name, r2.description as roles_description, r2.active as roles_active from tec.right_roles rr left join \"right\" r ON r.id = rr.\"id_right\" left join roles r2 ON  r2.id = rr.\"id_roles\" ",
     "returt_get": "TABLE(id int, id_right int, id_roles int, right_name varchar, right_description text, right_active boolean, roles_name varchar,roles_description text, roles_active boolean)",
     "column_get_id": "rr"
