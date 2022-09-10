@@ -70,11 +70,11 @@ declare
         check_${this.name_column[0]} := (select * from ${this.name_schema}.${this.name_column[0]}_check_id(_id_${this.name_column[0]}));
         check_${this.name_column[1]} := (select * from ${this.name_schema}.${this.name_column[1]}_check_id(_id_${this.name_column[1]}));
         if check_${this.name_column[0]} <> true and check_${this.name_column[1]} <> true then
-            select * into error  from tec.error_get_id(${this.errors_404[2]});
+            select * into error  from tec.error_get_id(${this.errors_404[1]});
         elseif check_${this.name_column[0]} <> true then 
-            select * into error  from tec.error_get_id(${this.errors_404[3]});
+            select * into error  from tec.error_get_id(${this.errors_404[2]});
         elseif check_${this.name_column[1]} <> true then 
-            select * into error  from tec.error_get_id(${this.errors_404[4]});
+            select * into error  from tec.error_get_id(${this.errors_404[3]});
         else 
             INSERT INTO  ${this.name_schema}.${this.name_table}
             (id_${this.name_column[0]},id_${this.name_column[1]}) 
