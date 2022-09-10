@@ -1,0 +1,9 @@
+{
+    "name_table": "roles_user",
+    "name_schema": "tec",
+    "name_column": ["user", "roles"],
+    "errors_404": [15,16, 8 ,12],
+    "sql_get": "SELECT ru.id AS id, u.id AS user_id, u.\"name\" AS user_name, u.patronymic AS user_patronymic, u.surname AS user_surname, u.email AS user_email, u.active AS user_active, u.verified AS user_verified, u.create_date AS user_create_date, r.id AS roles_id, r.\"name\" AS roles_name, r.description AS roles_description, r.active AS roles_active FROM tec.roles_user ru LEFT JOIN \"user\" u ON u.id = ru.id_user LEFT JOIN ROLES r ON r.id = ru.id_roles",
+    "returt_get": "TABLE(id int, user_id int, user_name varchar, user_patronymic varchar, user_surname varchar, user_email varchar, user_active boolean, user_verified boolean, user_create_date timestamptz, roles_id int, roles_name varchar,roles_description text, roles_active boolean)",
+    "column_get_id": "ru"
+}
