@@ -62,7 +62,7 @@ export class SqlService {
             }
             this.sql += "\n";
         }
-        this.sql += `)`;
+        this.sql += `);`;
     }
 
     private getTable() {
@@ -71,18 +71,18 @@ export class SqlService {
         }
         this.sql += `\n`;
         this.sql += `CREATE OR REPLACE FUNCTION ${this.schema_name}.${this.name_table}_get(\n`;
-        this.sql += `   _limit int DEFAULT NULL::integer,\n`;
-        this.sql += `   _offset int DEFAULT NULL::integer,\n`;
-        this.sql += `   _where int DEFAULT NULL::integer,\n`;
-        this.sql += `   _order_by int DEFAULT NULL::integer\n`;
+        this.sql += `   _limit integer DEFAULT NULL::integer,\n`;
+        this.sql += `   _offset integer DEFAULT NULL::integer,\n`;
+        this.sql += `   _where text DEFAULT NULL::text,\n`;
+        this.sql += `   _order_by text DEFAULT NULL::text\n`;
         this.sql += `)\n`;
         this.sql += `RETURNS SETOF ${this.schema_name}.${this.name_table}\n`;
         this.sql += `LANGUAGE plpgsql\n`;
         this.sql += `AS $function$\n`;
         this.sql += `   BEGIN\n`;
         this.sql += `   return query EXECUTE (select * from  tec.table_get('select * from ${this.schema_name}.${this.name_table}', _limit, _offset, _order_by, _where));\n`;
-        this.sql += `   END\n`;
-        this.sql += `$function$\n`;
+        this.sql += `   END;\n`;
+        this.sql += `$function$;\n`;
     }
     private getTableId() {
         if (!this.sqlIfsGenerator.getTableId) {
@@ -96,9 +96,9 @@ export class SqlService {
         this.sql += `LANGUAGE plpgsql\n`;
         this.sql += `AS $function$\n`;
         this.sql += `   BEGIN\n`;
-        this.sql += `       return query * from ${this.schema_name}.${this.name_table} where id = _id;  \n`;
-        this.sql += `   END\n`;
-        this.sql += `$function$\n`;
+        this.sql += `       return query select * from ${this.schema_name}.${this.name_table} where id = _id;  \n`;
+        this.sql += `   END;\n`;
+        this.sql += `$function$;\n`;
     }
     private getCheckId() {
         if (!this.sqlIfsGenerator.getCheckId) {
@@ -113,8 +113,8 @@ export class SqlService {
         this.sql += `AS $function$\n`;
         this.sql += `   BEGIN\n`;
         this.sql += `      return EXISTS (select * from ${this.schema_name}.${this.name_table} where "id" = _id);\n`;
-        this.sql += `   END\n`;
-        this.sql += `$function$\n`;
+        this.sql += `   END;\n`;
+        this.sql += `$function$;\n`;
     }
 
     private save(){
@@ -137,7 +137,7 @@ export class SqlService {
         this.sql += `CREATE OR REPLACE FUNCTION ${this.schema_name}.${this.name_table}_save(\n`;
         this.sql += params;
         this.sql += `   out id_ int, \n`;
-        this.sql += `   out error_ tec.error \n`;
+        this.sql += `   out error_ tec.error \n)\n`;
         this.sql += `LANGUAGE plpgsql\n`;
         this.sql += `AS $function$\n`;
         this.sql += `   BEGIN\n`;
@@ -149,12 +149,12 @@ export class SqlService {
                 this.sql += `       end if;\n`;
             }   
         }
-        this.sql += `       INSERT ITNO ${this.schema_name}.${this.name_table}\n`;
+        this.sql += `       INSERT INTO ${this.schema_name}.${this.name_table}\n`;
         this.sql += `           (${insert})\n`;
         this.sql += `           VALUES  (${values})\n`;
-        this.sql += `           RETURNING id INTO id_ \n`;
-        this.sql += `   END\n`;
-        this.sql += `$function$\n`;
+        this.sql += `           RETURNING id INTO id_; \n`;
+        this.sql += `   END;\n`;
+        this.sql += `$function$;\n`;
     }
 
 
@@ -171,12 +171,13 @@ export class SqlService {
                 insert += `        ${elem.name} = _${elem.name},\n`;
             }
         }
-        insert = insert.substring(0, insert.length - 1);
+        insert = insert.substring(0, insert.length - 2);
+        console.log(insert);
         this.sql += `\n`;
         this.sql += `CREATE OR REPLACE FUNCTION ${this.schema_name}.${this.name_table}_update(\n`;
         this.sql += params;
         this.sql += `   out id_ int, \n`;
-        this.sql += `   out error_ tec.error \n`;
+        this.sql += `   out error_ tec.error\n)\n`;
         this.sql += `LANGUAGE plpgsql\n`;
         this.sql += `AS $function$\n`;
         this.sql += `   BEGIN\n`;
@@ -194,9 +195,9 @@ export class SqlService {
         }
         this.sql += `       UPDATE  ${this.schema_name}.${this.name_table} SET\n`;
         this.sql += `${insert}\n`;
-        this.sql += `       RETURNING id INTO id_ \n`;
-        this.sql += `   END\n`;
-        this.sql += `$function$\n`;
+        this.sql += `       RETURNING id INTO id_; \n`;
+        this.sql += `   END;\n`;
+        this.sql += `$function$;\n`;
     }
 
 
@@ -215,8 +216,8 @@ export class SqlService {
                 this.sql += `AS $function$\n`;
                 this.sql += `   BEGIN\n`;
                 this.sql += `      return EXISTS (select * from ${elem.fk_name} where "${elem.name}" = _id);\n`;
-                this.sql += `   END\n`;
-                this.sql += `$function$\n`;
+                this.sql += `   END;\n`;
+                this.sql += `$function$;\n`;
             }
         }
 
@@ -238,9 +239,9 @@ export class SqlService {
         this.sql += `      if (select * from ${this.schema_name}.${this.name_table}_check_id) then \n`;
         this.sql += `           DELETE FROM ${this.schema_name}.${this.name_table}  where id = _id RETURNING id INTO id_;\n`;
         this.sql += `      else\n`;
-        this.sql += `      select * from tec.errors_get_id(${this.error_delete_id})\n`;
+        this.sql += `      select * from tec.errors_get_id(${this.error_delete_id});\n`;
         this.sql += `      end if;\n`;
-        this.sql += `   END\n`;
-        this.sql += `$function$\n`;
+        this.sql += `   END;\n`;
+        this.sql += `$function$;\n`;
     }
 }
