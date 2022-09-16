@@ -18,6 +18,13 @@ export class SqlService {
     public generatorSql() {
         this.tableCreate();
         this.getTable();
+        this.getTableId();
+        this.getCheckId();
+        /** под вопросом нужно ли? */
+        this.getCheckFK();
+        /** под вопросом нужно ли? */
+        this.save();
+
         return this.sql;
     }
 
@@ -39,7 +46,7 @@ export class SqlService {
                 if (elem.text) {
                     this.sql += " ";
                 }
-            } 
+            }
             if (elem.text) {
                 this.sql += `${elem.text}`
             }
@@ -52,7 +59,7 @@ export class SqlService {
         this.sql += `)`;
     }
 
-    private getTable(){
+    private getTable() {
         if (!this.sqlIfsGenerator.getTable) {
             return;
         }
@@ -70,5 +77,99 @@ export class SqlService {
         this.sql += `   return query EXECUTE (select * from  tec.table_get('select * from ${this.schema_name}.${this.name_table}', _limit, _offset, _order_by, _where));\n`;
         this.sql += `   END\n`;
         this.sql += `$function$\n`;
+    }
+    private getTableId() {
+        if (!this.sqlIfsGenerator.getTableId) {
+            return;
+        }
+        this.sql += `\n`;
+        this.sql += `CREATE OR REPLACE FUNCTION ${this.schema_name}.${this.name_table}_get_id(\n`;
+        this.sql += `   _id int\n`;
+        this.sql += `)\n`;
+        this.sql += `RETURNS SETOF ${this.schema_name}.${this.name_table}\n`;
+        this.sql += `LANGUAGE plpgsql\n`;
+        this.sql += `AS $function$\n`;
+        this.sql += `   BEGIN\n`;
+        this.sql += `       return query * from ${this.schema_name}.${this.name_table} where id = _id;  \n`;
+        this.sql += `   END\n`;
+        this.sql += `$function$\n`;
+    }
+    private getCheckId() {
+        if (!this.sqlIfsGenerator.getCheckId) {
+            return;
+        }
+        this.sql += `\n`;
+        this.sql += `CREATE OR REPLACE FUNCTION ${this.schema_name}.${this.name_table}_check_id(\n`;
+        this.sql += `   _id int\n`;
+        this.sql += `)\n`;
+        this.sql += `RETURNS boolean \n`;
+        this.sql += `LANGUAGE plpgsql\n`;
+        this.sql += `AS $function$\n`;
+        this.sql += `   BEGIN\n`;
+        this.sql += `      return EXISTS (select * from ${this.schema_name}.${this.name_table} where "id" = _id);\n`;
+        this.sql += `   END\n`;
+        this.sql += `$function$\n`;
+    }
+
+    private save(){
+        if (!this.sqlIfsGenerator.save) {
+                    return;
+        }
+        let params = "";
+        let insert = "";
+        let values = "";
+        for (const elem of this.columnt) {
+            if (elem.flag_save) {
+                params += `   _${elem.name} ${elem.type},\n`
+                insert += `${elem.name},`;
+                values += `_${elem.name},`;
+            }
+        }
+        insert = insert.substring(0, insert.length - 1);
+        values = values.substring(0, values.length - 1);
+        this.sql += `\n`;
+        this.sql += `CREATE OR REPLACE FUNCTION ${this.schema_name}.${this.name_table}_save(\n`;
+        this.sql += params;
+        this.sql += `   out id_ int, \n`;
+        this.sql += `   out error_ tec.error \n`;
+        this.sql += `LANGUAGE plpgsql\n`;
+        this.sql += `AS $function$\n`;
+        this.sql += `   BEGIN\n`;
+        for (const elem of this.columnt) {
+            if (elem.fk) {
+                this.sql += `       if (select * from ${elem.fk_name}_check_id(_${elem.name})) <> true then \n`
+                this.sql += `           select * into error_ from tec.error_get_id(${elem.fk_error_id});\n`;
+                this.sql += `           return;\n`;
+                this.sql += `       end if;\n`;
+            }   
+        }
+        this.sql += `       INSERT ITNO ${this.schema_name}.${this.name_table}\n`;
+        this.sql += `           (${insert})\n`;
+        this.sql += `           VALUES  (${values})\n`;
+        this.sql += `           RETURNING id INTO id_ \n`;
+        this.sql += `   END\n`;
+        this.sql += `$function$\n`;
+    }
+
+    private getCheckFK() {
+        if (!this.sqlIfsGenerator.getCheckFK) {
+            return;
+        }
+        for (const elem of this.columnt) {
+            if (elem.fk) {
+                this.sql += `\n`;
+                this.sql += `CREATE OR REPLACE FUNCTION ${this.schema_name}.${this.name_table}_check_${elem.fk_column}(\n`;
+                this.sql += `   _id int\n`;
+                this.sql += `)\n`;
+                this.sql += `RETURNS boolean \n`;
+                this.sql += `LANGUAGE plpgsql\n`;
+                this.sql += `AS $function$\n`;
+                this.sql += `   BEGIN\n`;
+                this.sql += `      return EXISTS (select * from ${elem.fk_name} where "${elem.name}" = _id);\n`;
+                this.sql += `   END\n`;
+                this.sql += `$function$\n`;
+            }
+        }
+
     }
 }
