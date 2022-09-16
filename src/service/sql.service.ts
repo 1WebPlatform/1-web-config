@@ -5,14 +5,18 @@ export class SqlService {
     private sql: string = "";
     private readonly schema_name: string;
     private readonly name_table: string;
+    private readonly error_delete_id: number;
     private readonly columnt: ColumnType[];
     private readonly sqlIfsGenerator: SqlIfsGenerator;
+    private readonly error_check_id: number;
 
-    constructor(schema_name: string, name_table: string, columnt: ColumnType[], sqlIfsGenerator: SqlIfsGenerator) {
+    constructor(schema_name: string, name_table: string, columnt: ColumnType[], sqlIfsGenerator: SqlIfsGenerator, error_delete_id: number, error_check_id: number) {
         this.schema_name = schema_name;
         this.name_table = name_table;
         this.columnt = columnt;
         this.sqlIfsGenerator = sqlIfsGenerator;
+        this.error_delete_id = error_delete_id;
+        this.error_check_id = error_check_id;
     }
 
     public generatorSql() {
@@ -24,6 +28,8 @@ export class SqlService {
         this.getCheckFK();
         /** под вопросом нужно ли? */
         this.save();
+        this.delete();
+        this.update();
 
         return this.sql;
     }
@@ -151,6 +157,49 @@ export class SqlService {
         this.sql += `$function$\n`;
     }
 
+
+
+    private update(){
+        if (!this.sqlIfsGenerator.update) {
+                    return;
+        }
+        let params = "";
+        let insert = "";
+        for (const elem of this.columnt) {
+            if (elem.flag_save) {
+                params += `   _${elem.name} ${elem.type},\n`
+                insert += `        ${elem.name} = _${elem.name},\n`;
+            }
+        }
+        insert = insert.substring(0, insert.length - 1);
+        this.sql += `\n`;
+        this.sql += `CREATE OR REPLACE FUNCTION ${this.schema_name}.${this.name_table}_update(\n`;
+        this.sql += params;
+        this.sql += `   out id_ int, \n`;
+        this.sql += `   out error_ tec.error \n`;
+        this.sql += `LANGUAGE plpgsql\n`;
+        this.sql += `AS $function$\n`;
+        this.sql += `   BEGIN\n`;
+        this.sql += `      if (select * from ${this.schema_name}.${this.name_table}_check_id) then \n`;
+        this.sql += `           select * into error_ from tec.error_get_id(${this.error_check_id});\n`;
+        this.sql += `           return;\n`;
+        this.sql += `      end if;\n`;
+        for (const elem of this.columnt) {
+            if (elem.fk) {
+                this.sql += `     if (select * from ${elem.fk_name}_check_id(_${elem.name})) <> true then \n`
+                this.sql += `         select * into error_ from tec.error_get_id(${elem.fk_error_id});\n`;
+                this.sql += `         return;\n`;
+                this.sql += `     end if;\n`;
+            }   
+        }
+        this.sql += `       UPDATE  ${this.schema_name}.${this.name_table} SET\n`;
+        this.sql += `${insert}\n`;
+        this.sql += `       RETURNING id INTO id_ \n`;
+        this.sql += `   END\n`;
+        this.sql += `$function$\n`;
+    }
+
+
     private getCheckFK() {
         if (!this.sqlIfsGenerator.getCheckFK) {
             return;
@@ -171,5 +220,27 @@ export class SqlService {
             }
         }
 
+    }
+
+    private delete(){
+        if (!this.sqlIfsGenerator.delete) {
+            return;
+        }
+        this.sql += `\n`;
+        this.sql += `CREATE OR REPLACE FUNCTION ${this.schema_name}.${this.name_table}_delete(\n`;
+        this.sql += `   _id int,\n`;
+        this.sql += `   out id_ int, \n`;
+        this.sql += `   out error_ tec.error \n`;
+        this.sql += `)\n`;
+        this.sql += `LANGUAGE plpgsql\n`;
+        this.sql += `AS $function$\n`;
+        this.sql += `   BEGIN\n`;
+        this.sql += `      if (select * from ${this.schema_name}.${this.name_table}_check_id) then \n`;
+        this.sql += `           DELETE FROM ${this.schema_name}.${this.name_table}  where id = _id RETURNING id INTO id_;\n`;
+        this.sql += `      else\n`;
+        this.sql += `      select * from tec.errors_get_id(${this.error_delete_id})\n`;
+        this.sql += `      end if;\n`;
+        this.sql += `   END\n`;
+        this.sql += `$function$\n`;
     }
 }

@@ -9,12 +9,15 @@ router.post("/sql/generator", (ctx: Koa.Context) => {
     const schema_name = ctx.request.body.schema_name;
     const column = ctx.request.body.column;
     const sqlIfsGenerator = ctx.request.body.sqlIfsGenerator;
-
+    const  error_delete_id = ctx.request.body.error_delete_id;
+    const  error_check_id = ctx.request.body.error_check_id;
     const sqlService = new SqlService(
         schema_name,
         name_table,
         column,
-        sqlIfsGenerator
+        sqlIfsGenerator,
+        error_delete_id,
+        error_check_id
     );
 
     ctx.res.setHeader('Content-disposition', 'attachment; filename=' + `${name_table}.sql`);

@@ -5,4 +5,6 @@ export interface SqlIfsGenerator{
     getCheckId: boolean;
     getCheckFK: boolean;
     save: boolean;
+    delete: boolean;
+    update: boolean;
 }
