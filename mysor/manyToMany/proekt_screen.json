@@ -1,0 +1,9 @@
+{
+    "name_table": "proekt_screen",
+    "name_schema": "config",
+    "name_column": ["proekt", "screen"],
+    "errors_404": [23,24, 21 ,22],
+    "sql_get": "SELECT p.id AS proekt_id, p.\"name\" AS proekt_name, p.description AS proekt_description, p.icons AS proekt_icons, p.active AS proekt_active, p.date_create AS proekt_date_create, s.id AS screen_id, s.\"name\" AS screen_name, s.description AS screen_description, s.title AS screen_title, s.url AS screen_url, s.icons AS screen_icons, s.active AS screen_active, r.id AS right_id, r.\"name\" AS right_name, r.description AS right_description, r.active AS right_active FROM config.proekt_screen ps LEFT JOIN config.proekt p ON p.id = ps.id_proekt LEFT JOIN config.screen s ON s.id = ps.id_screen LEFT JOIN tec.\"right\" r ON r.id = s.id_right",
+    "returt_get": "TABLE(proekt_id serial, proekt_name varchar , proekt_description text , proekt_icons varchar , proekt_active bool, proekt_date_create timestamptz, screen_id serial NOT, screen_name varchar , screen_description text , screen_title varchar , screen_url varchar , screen_icons varchar , screen_active bool, right_id serial NOT, right_name varchar , right_description text, right_active bool)",
+    "column_get_id": "ps"
+}
