@@ -1,0 +1,39 @@
+{
+    "name_table": "proekt",
+    "schema_name": "config",
+    "error_delete_id": "22",
+    "error_check_id": 22,
+    "column": [
+        {
+            "name": "id", "type": "int4", "text": "NOT NULL GENERATED ALWAYS AS IDENTITY" 
+        },
+        {
+         "name": "name", "type": "varchar", "text": "NOT NULL", "flag_save": true
+        },
+        {
+         "name": "description", "type": "text", "text": "NULL", "flag_save": true
+        },
+        {
+         "name": "icons", "type": "varchar", "flag_save": true
+        },
+        {
+         "name": "active", "type": "boolean", "text": "DEFAULT true"
+        },
+        {
+            "name": "date_create", "type": "timestamp", "text": "WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP" 
+        },
+        {
+         "text": "CONSTRAINT proekt_pk PRIMARY KEY (id)"
+        }
+    ],
+    "sqlIfsGenerator": {
+        "table": true,
+        "getTable": true,
+        "getTableId": true,
+        "getCheckId": true,
+        "save": true,
+        "delete": true,
+        "update": true
+      
+    }
+}
