@@ -26,7 +26,7 @@
          "name": "active", "type": "boolean", "text": "DEFAULT true"
         },
         {
-         "name": "id_right", "type": "int", "text": "NULL", "fk": true, "fk_name": "tec.right",   "flag_save": true,"fk_column": "right", "fk_error_id": 12
+         "name": "id_right", "type": "int", "text": "NULL", "fk": true, "fk_name": "tec.right",   "flag_save": true,"fk_column": "right", "fk_error_id": 10
         },
         {
          "text": "CONSTRAINT screen_fk FOREIGN KEY (id_right) REFERENCES tec.right(id)"

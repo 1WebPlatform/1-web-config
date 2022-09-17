@@ -1,0 +1,9 @@
+{
+    "name_table": "screen_component",
+    "name_schema": "config",
+    "name_column": ["screen", "component"],
+    "errors_404": [27,28, 21 ,25],
+    "sql_get": "SELECT c.id AS component_id, c.\"name\" AS component_name, c.description AS component_description, c.css AS component_css, c.params AS component_params, c.\"schema\" AS component_schema, tc.\"name\" AS component_type, c.id_parent AS component_parent_id, s.id AS screen_id, s.\"name\" AS screen_name, s.description AS screen_description, s.title AS screen_title, s.url AS screen_url, s.icons AS screen_icons, s.active AS screen_active FROM config.screen_component sc LEFT JOIN config.screen s ON s.id = sc.id_screen LEFT JOIN config.component c ON c.id = sc.id_component LEFT JOIN handbook.type_component tc ON tc.id = c.id_type",
+    "returt_get": "TABLE( component_id integer , component_name varchar(10485760), component_description text , component_css text , component_params text , component_schema text , component_type varchar(10485760), component_parent_id int4, screen_id integer , screen_name varchar(10485760), screen_description text , screen_title varchar(10485760), screen_url varchar(10485760), screen_icons varchar(10485760), screen_active bool)",
+    "column_get_id": "sc"
+}
