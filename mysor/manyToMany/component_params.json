@@ -1,0 +1,13 @@
+{
+    "name_table": "component_params",
+    "name_schema": "config",
+    "name_column": ["component", "params"],
+    "errors_404": [31,32, 26 ,30],
+    "sql_get": "SELECT cp.id as id, p.id AS params_id, p.\"name\" AS params_name, p.description AS params_description, p.\"select\" AS params_select, p.id_type AS params_id_type, tp.\"name\" AS params_type_name, tc.id AS component_id, tc.\"name\" AS component_name, tc.description AS component_description, tc.active AS component_active FROM config.component_params cp LEFT JOIN config.params p ON p.id = cp.id_params LEFT JOIN handbook.type_component tc ON tc.id = cp.id_component LEFT JOIN handbook.type_params tp ON tp.id = p.id_type",
+    "returt_get": "TABLE(id integer, params_id integer , params_name varchar , params_description text , params_select text , params_id_type int4, params_type_name varchar , component_id integer , component_name varchar , component_description text , component_active bool)",
+    "column_get_id": "rr"
+}
+
+
+
+ 
