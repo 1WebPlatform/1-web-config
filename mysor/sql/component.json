@@ -23,6 +23,9 @@
          "name": "schema", "type": "text", "text": "NULL", "flag_save": true
         },
         {
+            "name": "event", "type": "text", "text": "NULL", "flag_save": true
+        },
+        {
          "name": "id_right", "type": "int", "text": "NULL", "fk": true, "fk_name": "tec.right",   "flag_save": true,"fk_column": "right", "fk_error_id": 10
         },
         {
