@@ -17,7 +17,7 @@
          "name": "select", "type": "text", "text": "NULL", "flag_save": true
         },
         {
-            "name": "id_type", "type": "text", "text": "NULL",
+            "name": "id_type", "type": "int", "text": "NULL",
             "fk": true, "fk_name": "handbook.type_params",   "flag_save": true,"fk_column": "type_params", "fk_error_id": 29
         },
         {
