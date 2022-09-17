@@ -48,7 +48,7 @@ export class SqlService {
             this.sql += `   `;
             /** если это колонка */
             if (elem.name && elem.type) {
-                this.sql += `${elem.name} ${elem.type}`;
+                this.sql += `"${elem.name}" ${elem.type}`;
                 if (elem.text) {
                     this.sql += " ";
                 }
@@ -80,7 +80,7 @@ export class SqlService {
         this.sql += `LANGUAGE plpgsql\n`;
         this.sql += `AS $function$\n`;
         this.sql += `   BEGIN\n`;
-        this.sql += `   return query EXECUTE (select * from  tec.table_get('select * from ${this.schema_name}.${this.name_table}', _limit, _offset, _order_by, _where));\n`;
+        this.sql += `       return query EXECUTE (select * from  tec.table_get('select * from ${this.schema_name}.${this.name_table}', _limit, _offset, _order_by, _where));\n`;
         this.sql += `   END;\n`;
         this.sql += `$function$;\n`;
     }
@@ -127,7 +127,7 @@ export class SqlService {
         for (const elem of this.columnt) {
             if (elem.flag_save) {
                 params += `   _${elem.name} ${elem.type},\n`
-                insert += `${elem.name},`;
+                insert += `"${elem.name}",`;
                 values += `_${elem.name},`;
             }
         }
@@ -168,20 +168,21 @@ export class SqlService {
         for (const elem of this.columnt) {
             if (elem.flag_save) {
                 params += `   _${elem.name} ${elem.type},\n`
-                insert += `        ${elem.name} = _${elem.name},\n`;
+                insert += `        "${elem.name}" = _${elem.name},\n`;
             }
         }
         insert = insert.substring(0, insert.length - 2);
         console.log(insert);
         this.sql += `\n`;
         this.sql += `CREATE OR REPLACE FUNCTION ${this.schema_name}.${this.name_table}_update(\n`;
+        this.sql += `   _id int, \n`;
         this.sql += params;
         this.sql += `   out id_ int, \n`;
         this.sql += `   out error_ tec.error\n)\n`;
         this.sql += `LANGUAGE plpgsql\n`;
         this.sql += `AS $function$\n`;
         this.sql += `   BEGIN\n`;
-        this.sql += `      if (select * from ${this.schema_name}.${this.name_table}_check_id) then \n`;
+        this.sql += `      if (select * from ${this.schema_name}.${this.name_table}_check_id(_id)) then \n`;
         this.sql += `           select * into error_ from tec.error_get_id(${this.error_check_id});\n`;
         this.sql += `           return;\n`;
         this.sql += `      end if;\n`;
@@ -236,10 +237,10 @@ export class SqlService {
         this.sql += `LANGUAGE plpgsql\n`;
         this.sql += `AS $function$\n`;
         this.sql += `   BEGIN\n`;
-        this.sql += `      if (select * from ${this.schema_name}.${this.name_table}_check_id) then \n`;
+        this.sql += `      if (select * from ${this.schema_name}.${this.name_table}_check_id(_id)) then \n`;
         this.sql += `           DELETE FROM ${this.schema_name}.${this.name_table}  where id = _id RETURNING id INTO id_;\n`;
         this.sql += `      else\n`;
-        this.sql += `      select * from tec.errors_get_id(${this.error_delete_id});\n`;
+        this.sql += `      select * into error_ from tec.error_get_id(${this.error_delete_id});\n`;
         this.sql += `      end if;\n`;
         this.sql += `   END;\n`;
         this.sql += `$function$;\n`;
