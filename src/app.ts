@@ -4,6 +4,7 @@ import {fileRouter} from "./controllers/file.controllers";
 import { handbookRouter } from './controllers/handbook.controllers';
 import { manyToManyRouter } from './controllers/manyToMany.contollers';
 import { sqlRouter } from './controllers/sql.controllers';
+import {sqlAllRouter} from "./controllers/sqlAll.controllers";
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use(multipartBodyParser({
 app.use(fileRouter.routes());
 app.use(handbookRouter.routes());
 app.use(manyToManyRouter.routes());
+app.use(sqlAllRouter.routes());
 app.use(sqlRouter.routes());
 // Application error logging.
 app.on('error', console.error);

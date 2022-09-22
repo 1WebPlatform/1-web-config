@@ -1,0 +1,36 @@
+{
+  "files": [
+    "lib\\index.sql",
+
+    "tec\\index.sql",
+    "tec\\error.sql",
+    "tec\\right.sql",
+    "tec\\roles.sql",
+    "tec\\user.sql",
+    "tec\\token.sql",
+    "tec\\roles_user.sql",
+    "tec\\right_roles.sql",
+    "tec\\right_fun.sql",
+    "tec\\libs.sql",
+
+    "handbook\\index.sql",
+    "handbook\\event.sql",
+    "handbook\\type_component.sql",
+    "handbook\\type_params.sql",
+
+    "config\\index.sql",
+    "config\\proekt.sql",
+    "config\\component.sql",
+    "config\\screen.sql",
+    "config\\screen_component.sql",
+    "config\\proekt_screen.sql",
+    "config\\params.sql",
+    "config\\component_params.sql",
+
+
+    "data\\error-data.sql",
+    "data\\right-data.sql",
+    "data\\roles-data.sql",
+    "data\\right_fun.sql"
+  ]
+}
