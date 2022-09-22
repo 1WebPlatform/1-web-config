@@ -58,7 +58,7 @@ CREATE OR REPLACE FUNCTION ${this.name_schema}.${this.name_table}_save(
     _id_${this.name_column[0]} int,
     _id_${this.name_column[1]} int,
     out id_ int,
-    out error tec.error
+    out error_  json
 )
 LANGUAGE plpgsql
 AS $function$
@@ -70,11 +70,11 @@ declare
         check_${this.name_column[0]} := (select * from ${this.name_schema}.${this.name_column[0]}_check_id(_id_${this.name_column[0]}));
         check_${this.name_column[1]} := (select * from ${this.name_schema}.${this.name_column[1]}_check_id(_id_${this.name_column[1]}));
         if check_${this.name_column[0]} <> true and check_${this.name_column[1]} <> true then
-            select * into error  from tec.error_get_id(${this.errors_404[1]});
+            select * into error_  from tec.error_get_id(${this.errors_404[1]});
         elseif check_${this.name_column[0]} <> true then 
-            select * into error  from tec.error_get_id(${this.errors_404[2]});
+            select * into error_  from tec.error_get_id(${this.errors_404[2]});
         elseif check_${this.name_column[1]} <> true then 
-            select * into error  from tec.error_get_id(${this.errors_404[3]});
+            select * into error_  from tec.error_get_id(${this.errors_404[3]});
         else 
             INSERT INTO  ${this.name_schema}.${this.name_table}
             (id_${this.name_column[0]},id_${this.name_column[1]}) 
@@ -146,7 +146,7 @@ $function$;
 CREATE OR REPLACE FUNCTION ${this.name_schema}.${this.name_table}_delete(
     _id int,
     out id_ int,
-    out error tec.error
+    out error_  json
 )
 LANGUAGE plpgsql
 AS $function$
@@ -154,7 +154,7 @@ AS $function$
 	    if(select * from ${this.name_schema}.${this.name_table}_check_id(_id)) then
 	   		DELETE FROM ${this.name_schema}.${this.name_table}  where id = _id RETURNING id INTO id_; 	
 	    else
-	    	select * into error  from tec.error_get_id(${this.errors_404[0]});   
+	    	select * into error_  from tec.error_get_id(${this.errors_404[0]});   
 	    end if;
      end;
 $function$;
@@ -170,7 +170,7 @@ CREATE OR REPLACE FUNCTION ${this.name_schema}.${this.name_table}_update_id(
     _id_${this.name_column[0]} integer, 
     _id_${this.name_column[1]} integer,
     out id_ int,
-    out error tec.error
+    out error_  json
 )
 LANGUAGE plpgsql
 AS $function$
@@ -183,11 +183,11 @@ declare
 		    check_${this.name_column[0]} := (select * from ${this.name_schema}.${this.name_column[0]}_check_id(_id_${this.name_column[0]}));
 	        check_${this.name_column[1]} := (select * from ${this.name_schema}.${this.name_column[1]}_check_id(_id_${this.name_column[1]}));
 	        if check_${this.name_column[0]} <> true and check_${this.name_column[1]} <> true then
-	            select * into error  from tec.error_get_id(${this.errors_404[1]});
+	            select * into error_  from tec.error_get_id(${this.errors_404[1]});
 	        elseif check_${this.name_column[0]} <> true then 
-	            select * into error  from tec.error_get_id(${this.errors_404[2]});
+	            select * into error_  from tec.error_get_id(${this.errors_404[2]});
 	        elseif check_${this.name_column[1]} <> true then 
-	            select * into error  from tec.error_get_id(${this.errors_404[3]});
+	            select * into error_  from tec.error_get_id(${this.errors_404[3]});
 		   	else
 		   		UPDATE ${this.name_schema}.${this.name_table}
 	            SET 
@@ -196,7 +196,7 @@ declare
 	            where id = _id RETURNING id INTO id_;
 	        end if;
 	    else
-		   	select * into error  from tec.error_get_id(${this.errors_404[0]});   
+		   	select * into error_  from tec.error_get_id(${this.errors_404[0]});   
 	    end if;
      end;
 $function$;

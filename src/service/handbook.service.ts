@@ -141,7 +141,7 @@ CREATE OR REPLACE FUNCTION handbook.${this.name}_save(
     _description text DEFAULT NULL::character varying,
     _active boolean DEFAULT true,
     OUT id_ int,
-    OUT error tec.error
+    out error_  json
 )
 LANGUAGE plpgsql
 AS $function$
@@ -152,7 +152,7 @@ AS $function$
         VALUES (_name, _description,_active) 
         RETURNING id INTO id_;
 ELSE 
-    select * into error from tec.error_get_id(${this.id_errors_name});		
+    select * into error_ from tec.error_get_id(${this.id_errors_name});		
 END IF;	
     END;
 $function$;
@@ -166,7 +166,7 @@ CREATE OR REPLACE FUNCTION handbook.${this.name}_update_id(
     _name varchar,
     _description text DEFAULT NULL::character varying,
     _active boolean DEFAULT true,
-    OUT error tec.error, 
+    out error_  json, 
     OUT id_ int
 )
 LANGUAGE plpgsql
@@ -181,10 +181,10 @@ BEGIN
                 active = _active
             where id = _id RETURNING id INTO id_;
         ELSE 
-            select * into error from tec.error_get_id(${this.id_errors_name});
+            select * into error_ from tec.error_get_id(${this.id_errors_name});
         END IF;
     ELSE 
-        select * into error from tec.error_get_id(${this.id_errors_404});
+        select * into error_ from tec.error_get_id(${this.id_errors_404});
     END IF;
 END;
 $function$;
@@ -193,14 +193,14 @@ $function$;
 
     private generatorFunctionDelete(){
         this.sql += `
-CREATE OR REPLACE FUNCTION handbook.${this.name}_delete_id(_id int, OUT error tec.error, OUT id_ int)
+CREATE OR REPLACE FUNCTION handbook.${this.name}_delete_id(_id int, out error_  json, OUT id_ int)
 LANGUAGE plpgsql
 AS $function$
 BEGIN
     IF (select * from handbook.${this.name}_check_id(_id)) then
         DELETE FROM handbook.${this.name} where id = _id RETURNING id INTO id_;
     ELSE 
-        select * into error from tec.error_get_id(${this.id_errors_404});
+        select * into error_ from tec.error_get_id(${this.id_errors_404});
     END IF;
 END;
 $function$;
