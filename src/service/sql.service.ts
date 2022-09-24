@@ -1,5 +1,6 @@
 import { ColumnType } from "../type/columnType";
 import { SqlIfsGenerator } from "../type/sqlIfsGenerator";
+import { SqlIndexType } from "../type/sqlIndexType";
 
 export class SqlService {
     private sql: string = "";
@@ -9,29 +10,76 @@ export class SqlService {
     private readonly columnt: ColumnType[];
     private readonly sqlIfsGenerator: SqlIfsGenerator;
     private readonly error_check_id: number;
+    private readonly index: SqlIndexType[];
 
-    constructor(schema_name: string, name_table: string, columnt: ColumnType[], sqlIfsGenerator: SqlIfsGenerator, error_delete_id: number, error_check_id: number) {
+    constructor(schema_name: string, name_table: string, columnt: ColumnType[], sqlIfsGenerator: SqlIfsGenerator, error_delete_id: number, error_check_id: number, index:SqlIndexType[]) {
         this.schema_name = schema_name;
         this.name_table = name_table;
         this.columnt = columnt;
         this.sqlIfsGenerator = sqlIfsGenerator;
         this.error_delete_id = error_delete_id;
         this.error_check_id = error_check_id;
+        this.index = index;
     }
 
     public generatorSql() {
         this.tableCreate();
+        this.indexCreate();
         this.getTable();
         this.getTableId();
         this.getCheckId();
         /** под вопросом нужно ли? */
         this.getCheckFK();
         /** под вопросом нужно ли? */
+        this.indexCheck();
+
         this.save();
         this.delete();
         this.update();
 
         return this.sql;
+    }
+
+    private indexCreate(){
+        this.index.map((e:SqlIndexType)=>{
+            let text = null;
+            if (e.type == "UNIQUE INDEX") {
+                text = "idx";
+            }
+            this.sql += `CREATE ${e.type} ${this.name_table}_${e.name}_${text} ON ${this.schema_name}.${this.name_table} USING btree (${e.name}); \n`;
+        })
+    }
+
+    private indexCheck(){
+        this.index.map((e:SqlIndexType)=>{
+            if (e.save_check) {
+                this.sql += `\n`;
+                this.sql += `CREATE OR REPLACE FUNCTION ${this.schema_name}.${this.name_table}_check_${e.name}(\n`;
+                this.sql += `   _${e.name} ${e.type_var}\n`;
+                this.sql += `)\n`;
+                this.sql += `RETURNS boolean \n`;
+                this.sql += `LANGUAGE plpgsql\n`;
+                this.sql += `AS $function$\n`;
+                this.sql += `   BEGIN\n`;
+                this.sql += `      return EXISTS (select * from ${this.schema_name}.${this.name_table} where "${e.name}" = _${e.name});\n`;
+                this.sql += `   END;\n`;
+                this.sql += `$function$;\n`;
+            }
+            if (e.update_check) {
+                this.sql += `\n`;
+                this.sql += `CREATE OR REPLACE FUNCTION ${this.schema_name}.${this.name_table}_check_update_${e.name}(\n`;
+                this.sql += `   _id int,\n`;
+                this.sql += `   _${e.name} ${e.type_var}\n`;
+                this.sql += `)\n`;
+                this.sql += `RETURNS boolean \n`;
+                this.sql += `LANGUAGE plpgsql\n`;
+                this.sql += `AS $function$\n`;
+                this.sql += `   BEGIN\n`;
+                this.sql += `      return EXISTS (select * from ${this.schema_name}.${this.name_table} where "id" != _id and "${e.name}" = _${e.name});\n`;
+                this.sql += `   END;\n`;
+                this.sql += `$function$;\n`;
+            }
+        });
     }
 
     private tableCreate() {
@@ -62,7 +110,7 @@ export class SqlService {
             }
             this.sql += "\n";
         }
-        this.sql += `);`;
+        this.sql += `);\n`;
     }
 
     private getTable() {
@@ -137,7 +185,7 @@ export class SqlService {
         this.sql += `CREATE OR REPLACE FUNCTION ${this.schema_name}.${this.name_table}_save(\n`;
         this.sql += params;
         this.sql += `   out id_ int, \n`;
-        this.sql += `   out error_ tec.error \n)\n`;
+        this.sql += `   out error_ json \n)\n`;
         this.sql += `LANGUAGE plpgsql\n`;
         this.sql += `AS $function$\n`;
         this.sql += `   BEGIN\n`;
@@ -149,6 +197,16 @@ export class SqlService {
                 this.sql += `       end if;\n`;
             }   
         }
+
+        for (const elem of this.index) {
+            if (elem.save_check) {
+                this.sql += `       if (select * from ${this.schema_name}.${this.name_table}_check_${elem.name}(_${elem.name})) <> true then \n`
+                this.sql += `           select * into error_ from tec.error_get_id(${elem.id_error});\n`;
+                this.sql += `           return;\n`; 
+                this.sql += `       end if;\n`;
+            }   
+        }
+
         this.sql += `       INSERT INTO ${this.schema_name}.${this.name_table}\n`;
         this.sql += `           (${insert})\n`;
         this.sql += `           VALUES  (${values})\n`;
@@ -178,7 +236,7 @@ export class SqlService {
         this.sql += `   _id int, \n`;
         this.sql += params;
         this.sql += `   out id_ int, \n`;
-        this.sql += `   out error_ tec.error\n)\n`;
+        this.sql += `   out error_ json\n)\n`;
         this.sql += `LANGUAGE plpgsql\n`;
         this.sql += `AS $function$\n`;
         this.sql += `   BEGIN\n`;
@@ -192,6 +250,14 @@ export class SqlService {
                 this.sql += `         select * into error_ from tec.error_get_id(${elem.fk_error_id});\n`;
                 this.sql += `         return;\n`;
                 this.sql += `     end if;\n`;
+            }   
+        }
+        for (const elem of this.index) {
+            if (elem.save_check) {
+                this.sql += `       if (select * from ${this.schema_name}.${this.name_table}_check_update_${elem.name}(_${elem.name})) <> true then \n`
+                this.sql += `           select * into error_ from tec.error_get_id(${elem.id_error});\n`;
+                this.sql += `           return;\n`; 
+                this.sql += `       end if;\n`;
             }   
         }
         this.sql += `       UPDATE  ${this.schema_name}.${this.name_table} SET\n`;
@@ -232,7 +298,7 @@ export class SqlService {
         this.sql += `CREATE OR REPLACE FUNCTION ${this.schema_name}.${this.name_table}_delete(\n`;
         this.sql += `   _id int,\n`;
         this.sql += `   out id_ int, \n`;
-        this.sql += `   out error_ tec.error \n`;
+        this.sql += `   out error_ json \n`;
         this.sql += `)\n`;
         this.sql += `LANGUAGE plpgsql\n`;
         this.sql += `AS $function$\n`;
