@@ -254,7 +254,7 @@ export class SqlService {
         }
         for (const elem of this.index) {
             if (elem.save_check) {
-                this.sql += `       if (select * from ${this.schema_name}.${this.name_table}_check_update_${elem.name}(_${elem.name})) <> true then \n`
+                this.sql += `       if (select * from ${this.schema_name}.${this.name_table}_check_update_${elem.name}(_id, _${elem.name})) <> true then \n`
                 this.sql += `           select * into error_ from tec.error_get_id(${elem.id_error});\n`;
                 this.sql += `           return;\n`; 
                 this.sql += `       end if;\n`;
