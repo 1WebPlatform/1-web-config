@@ -27,7 +27,13 @@
             "name": "params", "type": "json", "text": "NULL", "flag_save": true
         },
         {
-         "text": "CONSTRAINT component_pk PRIMARY KEY (id)"
+            "name": "id_type", "type": "int", "text": "NULL", "fk": true, "fk_name": "handbook.type_component",   "flag_save": true,"fk_column": "type_component", "fk_error_id": 26
+        },
+        {
+            "text": "CONSTRAINT callback_fk FOREIGN KEY (id_type) REFERENCES handbook.type_component(id)"
+        },
+        {
+         "text": "CONSTRAINT callback_pk PRIMARY KEY (id)"
         }
     ],
     "sqlIfsGenerator": {
