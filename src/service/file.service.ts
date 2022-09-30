@@ -9,12 +9,12 @@ export class FileService {
         this.catalog = catalog ? `${process.env.CATALOG_CONFIG}\\${catalog}` : `${process.env.CATALOG_CONFIG}}`;
         this.pathFile = `${this.catalog}\\${this.file}`;
     }
-    deleteFile(){
+    deleteFile() {
         if (this.checkFile()) {
             this.fs.unlinkSync(this.pathFile);
         }
     }
-    checkFile(){
+    checkFile() {
         return this.fs.existsSync(this.pathFile);
     }
 
@@ -24,12 +24,17 @@ export class FileService {
         }
     }
 
-    setFile(data: string) {
+    setFile(data: string, checkJson: boolean) {
         !this.fs.existsSync(`${this.catalog}`) && this.fs.mkdirSync(`${this.catalog}`, { recursive: true })
 
         this.fs.open(this.pathFile, 'w', (err: Error) => {
             if (err) throw err;
         });
+        if (checkJson) {
+            this.fs.writeFileSync(this.pathFile, JSON.stringify(data));
+            return;
+        }
+        console.log(data);        
         this.fs.writeFileSync(this.pathFile, data);
     }
 }

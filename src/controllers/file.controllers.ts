@@ -43,12 +43,13 @@ router.post("/file", (ctx: Koa.Context) => {
     const fileValidate = new FileValidate(ctx);
     fileValidate.validateNameFileAndBodyData();
 
-    const data: string = JSON.stringify(ctx.request.body.data);
+    const data: string = ctx.request.body.data;
+
     const name: string = ctx?.query?.name as string;
     const catalog: string = ctx?.query?.catalog as string;
-
+    const checkJson: boolean = !!ctx?.query?.json as boolean;
     const fileService = new FileService(name, catalog);
-    fileService.setFile(data);
+    fileService.setFile(data, checkJson);
     ctx.body = 'Файл успешно сохранен';
 })
 
