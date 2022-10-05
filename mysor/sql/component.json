@@ -3,6 +3,7 @@
     "schema_name": "config",
     "error_delete_id": "25",
     "error_check_id": 25,
+    "index": [],
     "column": [
         {
             "name": "id", "type": "int4", "text": "NOT NULL GENERATED ALWAYS AS IDENTITY" 
@@ -39,6 +40,9 @@
         },
         {
          "text": "CONSTRAINT component_fk FOREIGN KEY (id_right) REFERENCES tec.right(id)"
+        },
+        {
+         "text": "CONSTRAINT component_fk FOREIGN KEY (id_type) REFERENCES handbook.type_component(id)"
         }
     ],
     "sqlIfsGenerator": {

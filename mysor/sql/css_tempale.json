@@ -1,0 +1,37 @@
+{
+    "name_table": "css_tempale",
+    "schema_name": "config",
+    "error_delete_id": 36,
+    "error_check_id": 36,
+    "index": [],
+    "column": [
+        {
+            "name": "id", "type": "int4", "text": "NOT NULL GENERATED ALWAYS AS IDENTITY" 
+        },
+        {
+         "name": "select", "type": "varchar", "text": "NOT NULL", "flag_save": true
+        },
+        {
+         "name": "css", "type": "text", "text": "NULL", "flag_save": true
+        },
+        {
+            "name": "id_type", "type": "int", "text": "NOT NULL", "fk": true, "fk_name": "handbook.type_component",   "flag_save": true,"fk_column": "type_component", "fk_error_id": 26
+        },
+        {
+         "text": "CONSTRAINT component_pk PRIMARY KEY (id)"
+        },
+        {
+            "text": "CONSTRAINT component_fk FOREIGN KEY (id_type) REFERENCES handbook.type_component(id)"
+        }
+    ],
+    "sqlIfsGenerator": {
+        "table": true,
+        "getTable": true,
+        "getTableId": true,
+        "getCheckId": true,
+        "save": true,
+        "delete": true,
+        "update": true
+      
+    }
+}
