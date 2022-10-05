@@ -9,9 +9,6 @@
             "name": "id", "type": "int4", "text": "NOT NULL GENERATED ALWAYS AS IDENTITY" 
         },
         {
-         "name": "select", "type": "varchar", "text": "NOT NULL", "flag_save": true
-        },
-        {
          "name": "css", "type": "text", "text": "NULL", "flag_save": true
         },
         {
