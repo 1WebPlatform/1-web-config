@@ -18,10 +18,10 @@
             "name": "id_type", "type": "int", "text": "NOT NULL", "fk": true, "fk_name": "handbook.type_component",   "flag_save": true,"fk_column": "type_component", "fk_error_id": 26
         },
         {
-         "text": "CONSTRAINT component_pk PRIMARY KEY (id)"
+         "text": "CONSTRAINT css_tempale_pk PRIMARY KEY (id)"
         },
         {
-            "text": "CONSTRAINT component_fk FOREIGN KEY (id_type) REFERENCES handbook.type_component(id)"
+            "text": "CONSTRAINT css_tempale_fk FOREIGN KEY (id_type) REFERENCES handbook.type_component(id)"
         }
     ],
     "sqlIfsGenerator": {
