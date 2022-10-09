@@ -24,17 +24,51 @@ export class FileService {
         }
     }
 
-    setFile(data: string, checkJson: boolean) {
-        !this.fs.existsSync(`${this.catalog}`) && this.fs.mkdirSync(`${this.catalog}`, { recursive: true })
+    setFile(
+        data: string,
+        checkJson: boolean,
+        catalog = this.catalog,
+        pathFile = this.pathFile
+    ) {
+        !this.fs.existsSync(`${catalog}`) && this.fs.mkdirSync(`${catalog}`, { recursive: true })
 
-        this.fs.open(this.pathFile, 'w', (err: Error) => {
+        this.fs.open(pathFile, 'w', (err: Error) => {
             if (err) throw err;
         });
         if (checkJson) {
-            this.fs.writeFileSync(this.pathFile, JSON.stringify(data));
+            this.fs.writeFileSync(pathFile, JSON.stringify(data));
             return;
         }
-        console.log(data);        
-        this.fs.writeFileSync(this.pathFile, data);
+        console.log(data);
+        this.fs.writeFileSync(pathFile, data);
+    }
+
+    /**Возможно нужно проверка что каталог существует */
+    getCatalog() {
+        return this.fs.readdirSync(this.catalog);
+    }
+
+    getImages() {
+        const files = this.getCatalog();
+        let html = `<style>img{width: 30px;height: 30px;border:1px solid; padding:5px}
+        .flex{display:flex;flex-wrap: wrap;}
+        .container-image{display: flex;margin-right:30px;justify-content: center;align-items: center;flex-direction: column; margin-bottom:10px}
+        </style>`;
+        html += "<div class='flex'>"
+        files.forEach((file: string) => {
+            const url = `${this.catalog}/${file}`;
+            html += `<div class='container-image'>
+                <img src='${url}'/>
+                <p>${file}</p>
+            </div>`;
+        });
+        html += "</div>"
+        this.setFile(
+            html,
+            false,
+            process.env.CATALOG_CONFIG_SAVE,
+            `${process.env.CATALOG_CONFIG_SAVE}/${this.file}`
+        );
+        return html;
     }
 }

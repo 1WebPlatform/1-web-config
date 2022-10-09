@@ -1,7 +1,7 @@
 import * as Router from "koa-router";
 import * as Koa from "koa";
-import {FileService} from "../service/file.service"
-import {FileValidate} from "../validate/file.validate";
+import { FileService } from "../service/file.service"
+import { FileValidate } from "../validate/file.validate";
 
 const router: Router = new Router();
 
@@ -11,7 +11,7 @@ const router: Router = new Router();
 router.get("/file", (ctx: Koa.Context) => {
     const fileValidate = new FileValidate(ctx);
     fileValidate.validateNameFile();
-    
+
     const name: string = ctx?.query?.name as string;
     const catalog: string = ctx?.query?.catalog as string;
     ctx.res.setHeader('Content-disposition', 'attachment; filename=' + name);
@@ -26,7 +26,7 @@ router.get("/file", (ctx: Koa.Context) => {
 router.delete("/file", (ctx: Koa.Context) => {
     const fileValidate = new FileValidate(ctx);
     fileValidate.validateNameFile();
-    
+
     const name: string = ctx?.query?.name as string;
     const catalog: string = ctx?.query?.catalog as string;
 
@@ -51,6 +51,11 @@ router.post("/file", (ctx: Koa.Context) => {
     const fileService = new FileService(name, catalog);
     fileService.setFile(data, checkJson);
     ctx.body = 'Файл успешно сохранен';
+})
+
+router.get("/file/images", (ctx: Koa.Context) => {
+    const fileService = new FileService("images.html", "image");
+    ctx.body = fileService.getImages();
 })
 
 export const fileRouter = router;
