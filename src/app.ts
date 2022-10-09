@@ -5,6 +5,7 @@ import { handbookRouter } from './controllers/handbook.controllers';
 import { manyToManyRouter } from './controllers/manyToMany.contollers';
 import { sqlRouter } from './controllers/sql.controllers';
 import {sqlAllRouter} from "./controllers/sqlAll.controllers";
+import { cssRouter } from './controllers/css.controllers';
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use(handbookRouter.routes());
 app.use(manyToManyRouter.routes());
 app.use(sqlAllRouter.routes());
 app.use(sqlRouter.routes());
+app.use(cssRouter.routes());
 // Application error logging.
 app.on('error', console.error);
 
